@@ -274,47 +274,8 @@ default SAMPLES_PROJECT_GLOB = "samples/*/*.csproj"
             // TODO or use TC logger https://github.com/Microsoft/vstest/issues/254
             options += " --logger:trx ";
         }
-        // workaround for https://github.com/Microsoft/vstest/issues/283
-        var txt = File.ReadAllText(projectFile);
-        var multiTfm = Regex.Match(txt, @"\<TargetFrameworks\>(.+)\<\/TargetFrameworks\>");
-        var singleTfm = Regex.Match(txt, @"\<TargetFramework\>(.+)\<\/TargetFramework\>");
-        if (multiTfm != null && multiTfm.Success)
-        {
-          var frameworks = multiTfm.Groups[1]
-            .Value
-            .Split(new string[] {";"}, StringSplitOptions.RemoveEmptyEntries)
-            .Select(s => s.Trim())
-            .ToArray();
-
-          foreach (var framework in frameworks)
-          {
-            if (IsLinux && framework != null && framework.StartsWith("net4"))
-            {
-              Log.Info("Skipping tests for TFM " + framework + " on this platform");
-              continue;
-            }
-
-            DotnetTest(projectFile, Configuration, options, framework);
-          }
-          // end workaround
-        }
-        else if(singleTfm != null && singleTfm.Success)
-        {
-          var framework = singleTfm.Groups[1].Value;
-          if (IsLinux && framework != null && framework.StartsWith("net4"))
-          {
-            Log.Info("Skipping tests for TFM " + framework + " on this platform");
-          }
-          else
-          {
-            DotnetTest(projectFile, Configuration, options, framework);
-          }
-        }
-        else
-        {
-          // default invocation
-          DotnetTest(projectFile, Configuration, options);
-        }
+        
+        DotnetTest(projectFile, Configuration, options);
     }
   }
 
